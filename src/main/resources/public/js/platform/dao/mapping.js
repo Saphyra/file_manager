@@ -7,6 +7,7 @@ window.Mapping = new function(){
         MOVE: new Endpoint("/api/files/move", HttpMethod.POST),
         DELETE: new Endpoint("/api/files", HttpMethod.DELETE),
         RENAME: new Endpoint("/api/files/rename", HttpMethod.POST),
+        CREATE_DIRECTORY: new Endpoint("/api/directory", HttpMethod.PUT),
     }
 
     this.getEndpoint = function(endpointName, pathVariables, queryParams){

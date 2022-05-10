@@ -57,6 +57,14 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
         this.rightRefresh = function(){
             RIGHT_CONTAINER.refresh();
         }
+
+        this.leftCreateDirectory = function(){
+            LEFT_CONTAINER.createDirectory();
+        }
+
+        this.rightCreateDirectory = function(){
+            RIGHT_CONTAINER.createDirectory();
+        }
     }
 
     function sortFiles(a, b){
@@ -355,6 +363,43 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
 
         this.deactivate = function(){
             document.getElementById(id).classList.remove("active-container");
+        }
+
+        this.createDirectory = function(){
+            const containerId = "create-directory-confirmation-dialog";
+
+            const directoryNameInput = document.createElement("INPUT");
+                directoryNameInput.type = "text";
+                directoryNameInput.placeholder = "Directory name"
+
+            const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+                .withTitle("Create directory")
+                .withDetail(directoryNameInput)
+                .withConfirmButton("Create")
+                .withDeclineButton("Cancel");
+
+                confirmationService.openDialog(
+                    containerId,
+                    confirmationDialogLocalization,
+                    function(){
+                        const directoryName = directoryNameInput.value;
+                        if(directoryName.length == 0){
+                            notificationService.showError("Enter directory name.");
+                            return;
+                        }
+
+                        const request = new Request(Mapping.getEndpoint("CREATE_DIRECTORY"), {parent: directory, name: directoryName}, null, );
+                            request.convertResponse = jsonConverter;
+                            request.processValidResponse = function(directory){
+                                notificationService.showSuccess("Directory created");
+                                confirmationService.closeDialog(containerId);
+                                syncEngine.add(directory);
+                            }
+                        dao.sendRequestAsync(request);
+                    },
+                    ()=>{confirmationService.closeDialog(containerId)},
+                    new ConfirmationDialogOptions().withCloseAfterChoice(false)
+                )
         }
     }
 })();
