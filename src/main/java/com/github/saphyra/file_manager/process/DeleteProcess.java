@@ -29,5 +29,7 @@ public class DeleteProcess implements Runnable {
         if (!file.delete()) {
             throw new RuntimeException("Failed deleting file " + file);
         }
+
+        log.info("File {} is deleted with all of its content", file);
     }
 }

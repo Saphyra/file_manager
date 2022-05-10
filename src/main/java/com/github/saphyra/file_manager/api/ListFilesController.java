@@ -1,10 +1,11 @@
 package com.github.saphyra.file_manager.api;
 
+import com.github.saphyra.file_manager.api.converter.FileToResponseConverter;
 import com.github.saphyra.file_manager.api.model.FileListResponse;
 import com.github.saphyra.file_manager.api.model.FileResponse;
-import com.github.saphyra.file_manager.api.model.FileType;
 import com.github.saphyra.file_manager.api.model.OneParamRequest;
 import com.github.saphyra.file_manager.common.Endpoints;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,9 +20,12 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
+@RequiredArgsConstructor
 @RestController
 @Slf4j
 public class ListFilesController {
+    private final FileToResponseConverter fileToResponseConverter;
+
     @PostMapping(Endpoints.GET_FILES)
     FileListResponse getFiles(@RequestBody(required = false) OneParamRequest<String> parent) {
         log.info("Querying content of {}", parent);
@@ -48,7 +52,7 @@ public class ListFilesController {
             }
 
             List<FileResponse> responses = Arrays.stream(files)
-                .map(this::convert)
+                .map(fileToResponseConverter::convert)
                 .collect(Collectors.toList());
 
             return FileListResponse.builder()
@@ -57,7 +61,7 @@ public class ListFilesController {
                 .build();
         } else {
             List<FileResponse> responses = Arrays.stream(File.listRoots())
-                .map(this::convert)
+                .map(fileToResponseConverter::convert)
                 .collect(Collectors.toList());
             return FileListResponse.builder()
                 .files(responses)
@@ -65,13 +69,5 @@ public class ListFilesController {
         }
     }
 
-    private FileResponse convert(File file) {
-        return FileResponse.builder()
-            .path(file.getPath())
-            .name(file.getName().isEmpty() ? file.getPath() : file.getName())
-            .type(file.isDirectory() ? FileType.DIRECTORY : FileType.FILE)
-            .lastModified(file.lastModified())
-            .size(file.length())
-            .build();
-    }
+
 }

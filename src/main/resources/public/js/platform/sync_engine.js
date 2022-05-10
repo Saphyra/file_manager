@@ -68,6 +68,10 @@ function SyncEngine(cId, keyMethod, cnMethod, unMethod, sMethod, initialValues, 
         return cache[key];
     }
 
+    this.removeObj = function(obj){
+        this.remove(getKeyMethod(obj));
+    }
+
     this.remove = function(key){
         document.getElementById(containerId).removeChild(document.getElementById(createId(key)));
 

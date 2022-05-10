@@ -3,6 +3,7 @@ package com.github.saphyra.file_manager.api;
 import com.github.saphyra.file_manager.api.model.OneParamRequest;
 import com.github.saphyra.file_manager.common.Endpoints;
 import com.github.saphyra.file_manager.common.ExecutorServiceBean;
+import com.github.saphyra.file_manager.common.FileUtils;
 import com.github.saphyra.file_manager.process.DeleteProcess;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
-import java.util.Arrays;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -34,7 +34,7 @@ public class DeleteController {
             throw new IllegalArgumentException("File does not exist.");
         }
 
-        if (Arrays.stream(File.listRoots()).map(File::getPath).anyMatch(rootPath -> rootPath.equals(file.getPath()))) {
+        if (FileUtils.isRoot(file)) {
             throw new IllegalArgumentException("Root cannot be deleted.");
         }
 

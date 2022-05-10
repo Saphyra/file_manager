@@ -105,9 +105,17 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                     copyButton.innerText = "Copy";
                     copyButton.onclick = function(event){
                         event.stopPropagation();
-                        copy(file, getOtherContainer(container));
+                        copyFile(file, getOtherContainer(container));
                     }
-            operationsCell.appendChild(copyButton)
+            operationsCell.appendChild(copyButton);
+
+                const renameButton = document.createElement("BUTTON");
+                    renameButton.innerText = "Rename";
+                    renameButton.onclick = function(event){
+                        event.stopPropagation();
+                        renameFile(file, container);
+                    }
+            operationsCell.appendChild(renameButton);
 
                 const deleteButton = document.createElement("BUTTON");
                     deleteButton.innerText = "Delete";
@@ -149,7 +157,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
         container.activate();
     }
 
-    function copy(file, container){
+    function copyFile(file, container){
         const target = container.getDirectory();
 
         const confirmationDialogLocalization = new ConfirmationDialogLocalization()
@@ -188,6 +196,46 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                         }
                     dao.sendRequestAsync(request);
                 }
+            )
+    }
+
+    function renameFile(file, container){
+        const containerId = "rename-file-confirmation-dialog";
+
+        const newNameInput = document.createElement("INPUT");
+            newNameInput.type = "text";
+            newNameInput.placeholder = "New file name"
+            newNameInput.value = file.name;
+
+        const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+            .withTitle("Rename")
+            .withDetail(newNameInput)
+            .withConfirmButton("Rename")
+            .withDeclineButton("Cancel");
+
+            confirmationService.openDialog(
+                containerId,
+                confirmationDialogLocalization,
+                function(){
+                    const newName = newNameInput.value;
+                    if(newNameInput.length == 0){
+                        notificationService.showError("Enter the new file name.");
+                        return;
+                    }
+
+                    const request = new Request(Mapping.getEndpoint("RENAME"), {file: file.path, newName: newNameInput.value}, null, );
+                        request.convertResponse = jsonConverter;
+                        request.processValidResponse = function(newFile){
+                            notificationService.showSuccess("File renamed.");
+                            confirmationService.closeDialog(containerId);
+                            const syncEngine = container.getSyncEngine();
+                                syncEngine.removeObj(file);
+                                syncEngine.add(newFile);
+                        }
+                    dao.sendRequestAsync(request);
+                },
+                ()=>{confirmationService.closeDialog(containerId)},
+                new ConfirmationDialogOptions().withCloseAfterChoice(false)
             )
     }
 
