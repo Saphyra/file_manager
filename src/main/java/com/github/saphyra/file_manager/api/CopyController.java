@@ -24,12 +24,14 @@ public class CopyController {
 
     @PostMapping(Endpoints.COPY)
     void copy(@RequestBody CopyRequest request) {
+        log.info("Copying files {}", request);
+
         if (isBlank(request.getSource())) {
-            throw new IllegalArgumentException("Source is null.");
+            throw new IllegalArgumentException("Source is blank.");
         }
 
         if (isBlank(request.getTarget())) {
-            throw new IllegalArgumentException("Target is null.");
+            throw new IllegalArgumentException("Target is blank.");
         }
 
         if (request.getTarget().equals(request.getSource())) {

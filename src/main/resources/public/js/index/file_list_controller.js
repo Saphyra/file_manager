@@ -1,4 +1,5 @@
 scriptLoader.loadScript("/js/platform/sync_engine.js");
+scriptLoader.loadScript("/js/platform/confirmation_service.js");
 
 (function FileListController(){
     pageLoader.addLoader(loadRoot, "Loading file roots");
@@ -71,6 +72,8 @@ scriptLoader.loadScript("/js/platform/sync_engine.js");
     }
 
     function createFileNode(file, syncEngine){
+        const container = LEFT_CONTAINER.getSyncEngine() == syncEngine ? LEFT_CONTAINER : RIGHT_CONTAINER;
+
         const node = document.createElement("TR");
             node.title = file.path;
 
@@ -102,14 +105,21 @@ scriptLoader.loadScript("/js/platform/sync_engine.js");
                     copyButton.innerText = "Copy";
                     copyButton.onclick = function(event){
                         event.stopPropagation();
-                        copy(file, syncEngine);
+                        copy(file, getOtherContainer(container));
                     }
             operationsCell.appendChild(copyButton)
+
+                const deleteButton = document.createElement("BUTTON");
+                    deleteButton.innerText = "Delete";
+                    deleteButton.onclick = function(event){
+                        event.stopPropagation();
+                        deleteFile(file, container);
+                    }
+            operationsCell.appendChild(deleteButton);
         node.appendChild(operationsCell);
 
         node.onclick = function(){
             if(file.type == fileTypes.DIRECTORY){
-                const container = LEFT_CONTAINER.getSyncEngine() == syncEngine ? LEFT_CONTAINER : RIGHT_CONTAINER;
                 openDirectory(file.path, container);
             }
         }
@@ -139,13 +149,46 @@ scriptLoader.loadScript("/js/platform/sync_engine.js");
         container.activate();
     }
 
-    function copy(file, syncEngine){
-        const target = (LEFT_CONTAINER.getSyncEngine() == syncEngine ? RIGHT_CONTAINER : LEFT_CONTAINER).getDirectory();
-        const request = new Request(Mapping.getEndpoint("COPY"), {source: file.path, target: target});
-            request.processValidResponse = function(){
-                notificationService.showSuccess("Copy started.");
-            }
-        dao.sendRequestAsync(request);
+    function copy(file, container){
+        const target = container.getDirectory();
+
+        const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+            .withTitle("Confirm copy")
+            .withDetail("Are you sure you want to copy file <SPAN class='red'>" + file.path + "</SPAN> to <SPAN class='red'> " + target +"</SPAN>?")
+            .withConfirmButton("Copy")
+            .withDeclineButton("Cancel");
+
+            confirmationService.openDialog(
+                "copy-file-confirmation-dialog",
+                confirmationDialogLocalization,
+                function(){
+                    const request = new Request(Mapping.getEndpoint("COPY"), {source: file.path, target: target});
+                        request.processValidResponse = function(){
+                            notificationService.showSuccess("Copy started.");
+                        }
+                    dao.sendRequestAsync(request);
+                }
+            )
+    }
+
+    function deleteFile(file, container){
+         const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+            .withTitle("Confirm deletion")
+            .withDetail("Are you sure you want to delete file <SPAN class='red'>" + file.path + "</SPAN>?")
+            .withConfirmButton("Delete")
+            .withDeclineButton("Cancel");
+
+            confirmationService.openDialog(
+                "delete-file-confirmation-dialog",
+                confirmationDialogLocalization,
+                function(){
+                    const request = new Request(Mapping.getEndpoint("DELETE"), {value: file.path});
+                        request.processValidResponse = function(){
+                            notificationService.showSuccess("Deletion started");
+                        }
+                    dao.sendRequestAsync(request);
+                }
+            )
     }
 
     function loadRoot(){
@@ -162,10 +205,10 @@ scriptLoader.loadScript("/js/platform/sync_engine.js");
     }
 
     function addEventListeners(){
-        document.getElementById(ids.filesListLeftContainer).onclick = function(){
+        document.getElementById(ids.filesListLeftContainer).onmousedown = function(){
             setActiveContainer(LEFT_CONTAINER);
         }
-        document.getElementById(ids.filesListRightContainer).onclick = function(){
+        document.getElementById(ids.filesListRightContainer).onmousedown = function(){
             setActiveContainer(RIGHT_CONTAINER);
         }
 
@@ -186,6 +229,10 @@ scriptLoader.loadScript("/js/platform/sync_engine.js");
                     .forEach((file)=>{file.selected = rightSelectAllCheckbox.checked});
                 rightSyncEngine.reload();
             }
+    }
+
+    function getOtherContainer(container){
+        return LEFT_CONTAINER == container ? RIGHT_CONTAINER : LEFT_CONTAINER;
     }
 
     function Container(id, parentId, checkboxId, syncEngine){

@@ -34,24 +34,23 @@ public class BufferSizeProvider {
             throw new IllegalArgumentException(toAllocate + " is lower than the 0. bytes: " + bytes + ", megabytes: " + megabytes);
         }
 
-        log.info("Acquiring {}MB of buffer. Available: {}MB", toAllocate, available);
+        log.debug("Acquiring {}MB of buffer. Available: {} MB", toAllocate, available);
         semaphore.acquire(toAllocate);
 
-        log.info("Acquired {}MB of buffer. {}MB left.", toAllocate, semaphore.availablePermits());
+        log.info("Acquired {} MB of buffer. {} MB left.", toAllocate, semaphore.availablePermits());
 
         return toBytes(toAllocate);
     }
 
     private int toBytes(int megabytes) {
         int bytes = megabytes * 1024 * 1024;
-        log.info("Converted {}MB to {}B", megabytes, bytes);
         return bytes;
     }
 
-    public synchronized void release(int bytes) {
+    public void release(int bytes) {
         int megabytes = toMegabytes(bytes);
         semaphore.release(megabytes);
-        log.info("Released {}MB of buffer. {}MB left", megabytes, semaphore.availablePermits());
+        log.info("Released {} MB of buffer. {} MB left", megabytes, semaphore.availablePermits());
     }
 
     private int toMegabytes(long bytes) {

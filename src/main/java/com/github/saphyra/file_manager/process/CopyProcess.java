@@ -17,24 +17,33 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 
 import static java.util.Objects.isNull;
 
 @RequiredArgsConstructor
 @Slf4j
 public class CopyProcess implements Runnable {
+    private static final Semaphore SEMAPHORE = new Semaphore(1000);
+
     private final File source;
     private final File targetDirectory;
     private final ProcessContext processContext;
     private final List<Future<ExecutionResult<Void>>> childProcesses = new ArrayList<>();
 
+    @SneakyThrows
     @Override
     public void run() {
         log.info("Copying {} to {}", source, targetDirectory);
         if (source.isDirectory()) {
             createDirectory();
         } else {
-            copyFile();
+            SEMAPHORE.acquire();
+            try {
+                copyFile();
+            } finally {
+                SEMAPHORE.release();
+            }
         }
 
         while (childProcesses.stream().anyMatch(executionResultFuture -> !executionResultFuture.isDone())) {
@@ -46,7 +55,10 @@ public class CopyProcess implements Runnable {
     private void createDirectory() {
         File targetFile = new File(targetDirectory.getPath() + "/" + source.getName());
         if (!targetFile.exists()) {
-            targetFile.mkdirs();
+            log.debug("Creating directory {}", targetFile);
+            if (!targetFile.mkdirs()) {
+                throw new RuntimeException("Failed creating directory " + targetFile);
+            }
         }
 
         File[] content = source.listFiles();
@@ -67,7 +79,7 @@ public class CopyProcess implements Runnable {
         createFile(targetFile);
 
         long fileSize = source.length();
-        log.info("Size of {} is: {}", source, fileSize);
+        log.debug("Size of {} is: {}", source, fileSize);
 
         try (
             InputStream in = new BufferedInputStream(new FileInputStream(source));
@@ -80,20 +92,25 @@ public class CopyProcess implements Runnable {
                     throw new IllegalArgumentException(toCopy + " is lower than zero");
                 }
 
-                log.info("Copying {} bytes from file {} to file {}", toCopy, source, targetFile);
+                log.debug("Copying {} bytes from file {} to file {}", toCopy, source, targetFile);
 
                 if (toCopy > 0) {
                     try {
                         byte[] buffer = new byte[toCopy];
 
                         int readBytes = read(sourceDrive, in, buffer);
-                        log.info("Read {} bytes from file {}", readBytes, source);
+                        log.debug("Read {} bytes from file {}", readBytes, source);
+
+                        if (readBytes < 0) {
+                            log.debug("File is empty.");
+                            return;
+                        }
 
                         write(targetDrive, out, buffer, readBytes);
 
                         left -= readBytes;
 
-                        log.info("Wrote {} bytes from file {}. {} bytes left.", readBytes, targetFile, left);
+                        log.debug("Wrote {} bytes from file {}. {} bytes left.", readBytes, targetFile, left);
                     } finally {
                         processContext.getBufferSizeProvider()
                             .release(toCopy);
@@ -104,6 +121,12 @@ public class CopyProcess implements Runnable {
                 }
             }
         }
+
+        if (source.length() != targetFile.length()) {
+            throw new IllegalStateException("Files are different. " + source + " size is " + source.length() + " and " + targetFile + " size is " + targetFile.length());
+        }
+
+        log.info("Copy finished. {} bytes from  {} to {}", source.length(), source, targetFile);
     }
 
     private void write(char targetDrive, OutputStream out, byte[] buffer, int readBytes) {
@@ -120,7 +143,7 @@ public class CopyProcess implements Runnable {
 
         while (!future.isDone()) {
             processContext.getSleepService()
-                .sleep(100);
+                .sleep(10);
         }
     }
 
@@ -130,7 +153,7 @@ public class CopyProcess implements Runnable {
 
         while (!read.isDone()) {
             processContext.getSleepService()
-                .sleep(100);
+                .sleep(10);
         }
 
         return read.get()
@@ -139,12 +162,14 @@ public class CopyProcess implements Runnable {
 
     private void createFile(File targetFile) throws IOException {
         if (targetFile.exists()) {
-            log.info("File {} already exists.", targetFile);
+            log.debug("File {} already exists.", targetFile);
             return;
         }
 
         if (!targetFile.createNewFile()) {
             throw new RuntimeException("File was not created.");
+        } else {
+            log.debug("File {} created.", targetFile);
         }
     }
 }
