@@ -104,6 +104,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${versions.spring-boot}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${versions.guava}</version>
+        </dependency>
     </dependencies>
 
     <build>

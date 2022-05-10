@@ -1,0 +1,368 @@
+:root{
+    --footer-height: 3.1rem;
+    --header-height: 3.5rem;
+    --background-color: rgba(25,25,25,1);
+
+    --confirmation-dialog-header-height: 2.5rem;
+    --confirmation-dialog-footer-height: 2.5rem;
+}
+
+body{
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    color: white;
+}
+
+.main-page{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: auto;
+    border: 5px ridge white;
+    background-color: var(--background-color);
+}
+
+.main-page:not(:first-child){
+    display: none;
+}
+
+header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    border-bottom: 5px ridge white;
+    background: var(--background-color);
+}
+
+header > h1, header > h2{
+    text-align: center;
+    padding: 0.25rem;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+main{
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: var(--footer-height);
+    overflow: auto;
+    padding: 0.5rem 0;
+}
+
+    main.headerless{
+        top: 0;
+    }
+
+    main.footerless{
+        bottom: 0;
+    }
+
+footer{
+    background-color: var(--background-color);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 5px ridge white;
+    white-space: nowrap;
+    height: var(--footer-height);
+}
+
+footer button, footer label, footer .button{
+    font-size: 1.25rem;
+    display: inline-block
+}
+
+#logout-button{
+    float: right;
+}
+
+/*================BASE TAGS==================*/
+h1{
+    font-weight: 700;
+    font-size: 2.5rem;
+}
+h2{
+    font-weight: 700;
+    font-size: 2rem;
+}
+h3{
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/*================INPUT/NAVIGATION ELEMENTS==================*/
+a{
+    text-decoration: none;
+    color: white;
+}
+button, .button, a, select, footer label{
+    margin: 0.25rem;
+    background: var(--background-color);
+    border: 3px outset white;
+    border-radius: 5px;
+    padding: 0.2rem;
+    cursor: pointer;
+    color: white;
+    white-space: nowrap;
+    text-align: center;
+}
+
+    .button.disabled{
+        border-color: rgb(100,100,100) !important;
+        cursor: no-drop;
+    }
+
+footer label *{
+    cursor: pointer;
+}
+
+button:hover, .button:hover, a:hover, footer label:hover{
+    border-color: red;
+}
+button:active, .button:active, a:active, footer label:active{
+    border-color: orange;
+    border-style: inset;
+    outline: none;
+}
+
+    .button.disabled:active{
+        border-color: white;
+        border-style: outset;
+        outline: default;
+    }
+
+input, textarea, [contenteditable='true']{
+    background: var(--background-color);
+    border: 3px outset white;
+    border-radius: 5px;
+    padding: 0.2rem;
+    margin: 0.2rem;
+    color: white;
+}
+div[contenteditable='true']{
+    padding-right: 1rem;
+}
+input:focus, textarea:focus, [contenteditable='true']:focus{
+    border-color: red;
+    border-style: inset;
+    outline: none;
+}
+
+input[type='checkbox']{
+    cursor: pointer;
+}
+
+input[type='checkbox']:disabled{
+    opacity: 0.5;
+    cursor: default;
+}
+
+input[type=range]{
+    vertical-align: middle;
+}
+
+input:disabled, button:disabled, textarea:disabled, .disabled{
+    border-color: rgb(100,100,100) !important;
+    cursor: no-drop
+}
+
+#registration-button{
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.right-button{
+    float: right;
+}
+
+textarea{
+    resize: none;
+}
+
+/*================TABLE ELEMENTS==================*/
+.formatted-table th{
+    font-size: 1.5rem;
+}
+.formatted-table th, .formatted-table td{
+    padding: 0.25rem;
+    border: 3px inset white;
+    vertical-align: middle;
+}
+
+.formatted-table tr:nth-child(odd){
+    background-color: rgba(200,200,200,0.1);
+}
+.formatted-table tr:nth-child(even){
+    background-color: rgba(255,255,255,0.25);
+}
+.formatted-table thead tr:first-child{
+    background-color: rgba(0,75,150,0.3);
+}
+.formatted-table tbody tr:hover{
+    background-color: rgba(150,150,150,0.8);
+}
+
+/*=======NOTIFICATION=======*/
+#notification-container{
+    position: fixed;
+    left: 5px;
+    top: 5px;
+    max-width: calc(100vw - 10px);
+    z-index: 999;
+}
+
+    .notification-message-wrapper{
+        display: inline-block;
+    }
+
+        .notification-message{
+            font-size: 1.5rem;
+            margin: 0.25rem;
+            padding: 0.25rem;
+            white-space: nowrap;
+        }
+
+    .notification-success{
+        background: green;
+    }
+
+    .notification-error{
+        background: red;
+    }
+
+/*=======ADDITIONAL=======*/
+.notification-container{
+    color: red;
+}
+
+.centered{
+    text-align: center;
+}
+
+.left{
+    text-align: left;
+}
+
+.relative{
+    position: relative;
+}
+
+.invisible{
+    visibility: hidden;
+}
+
+.red{
+    color: red;
+}
+
+.nowrap{
+    white-space: nowrap;
+}
+
+.hidden{
+    display: none;
+}
+
+.selectable, .selectable *{
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.spinner{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("/res/common/images/spinner.gif");
+    background-position: center;
+    background-attachment: fixed;
+    background-size: 10vw 10vw;
+    background-color: rgba(0,0,0,0.5);
+    background-repeat: no-repeat;
+}
+
+/*=======CONFIRMATION_DIALOG=======*/
+.confirmation-dialog{
+    display: block !important;
+}
+
+    .confirmation-dialog-content-wrapper{
+        background: black;
+        position: absolute;
+        top: 20vh;
+        left: 20vw;
+        right: 20vw;
+        bottom: 20vh;
+
+        border: 3px ridge white;
+        border-radius: 10px;
+    }
+
+        .confirmation-dialog-title{
+            border-bottom: 2px ridge white;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--confirmation-dialog-header-height);
+            padding: 0 0.25rem;
+        }
+
+        .confirmation-dialog-detail-container{
+            padding: 1rem;
+            position: absolute;
+            top: var(--confirmation-dialog-header-height);
+            left: 0;
+            right: 0;
+            bottom: var(--confirmation-dialog-footer-height);
+            font-size: 1.25rem;
+            overflow: auto;
+        }
+
+        .confirmation-dialog-button-container{
+            border-top: 2px ridge white;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--confirmation-dialog-footer-height);
+        }
+
+            .confirmation-dialog-confirm-button{
+                float: left;
+                margin-left: 20%
+            }
+
+            .confirmation-dialog-decline-button{
+                float: right;
+                margin-right: 20%
+            }
+
+/*======SCROLLBAR======*/
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: darkblue;
+    border-radius: 10px;
+}

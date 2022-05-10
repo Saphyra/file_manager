@@ -1,3 +1,15 @@
 spring:
   application:
     name: file-manager
+
+drives:
+  groups:
+    - - E
+    - - F
+    - - G
+    - - C
+      - D
+    - - Z
+
+buffer:
+  sizeMegabytes: 15000

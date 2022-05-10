@@ -1,0 +1,63 @@
+#files main{
+}
+
+    .files-container{
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        padding: 1rem;
+        display: grid;
+        grid-template-rows: 2rem 2.75rem auto;
+        width: 50%;
+    }
+
+        .parent-label{
+            margin-bottom: 0.5rem;
+            border: 1px solid;
+            padding: 0.25rem;
+        }
+
+        .nav-button-wrapper{
+            margin-bottom: 0.5rem;
+            display: flex;
+            flex-direction: row;
+        }
+
+            .up-button{
+                flex-grow: 2;
+            }
+
+        .files-container input[type='checkbox']{
+            transform: scale(1.5);
+        }
+
+        .active-container{
+            background-color: rgba(0,0,255,0.35);
+        }
+
+        .table-wrapper{
+            overflow: auto;
+        }
+
+            .files-container table{
+                width: 100%;
+                background: black;
+            }
+
+    #files-list-left-container{
+        border-right: 3px ridge white;
+        left: 0;
+    }
+
+    #files-list-right-container{
+        border-right: 3px ridge white;
+        right: 0;
+    }
+
+    .files-list *{
+        cursor: pointer;
+    }
+
+#files-queue{
+    border-top: 3px ridge white;
+}

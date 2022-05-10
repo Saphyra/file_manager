@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+    <TITLE>File manager</TITLE>
+
+    <LINK rel="stylesheet" href="/css/reset.css">
+    <LINK rel="stylesheet" href="/css/common.css">
+    <LINK rel="stylesheet" href="/css/index.css">
+
+    <SCRIPT src="/js/platform/jquery.js"></SCRIPT>
+    <SCRIPT src="/js/platform/common_base.js"></SCRIPT>
+    <SCRIPT src="/js/index/page_controller.js"></SCRIPT>
+</HEAD>
+<BODY>
+<DIV id="files" class="main-page">
+    <HEADER>
+
+    </HEADER>
+
+    <MAIN>
+            <DIV id="files-list-left-container" class="files-container">
+                <DIV id="left-parent-label" class="parent-label"></DIV>
+
+                <DIV class="nav-button-wrapper">
+                    <DIV id="left-up-button" class="button up-button" onclick="fileListController.leftUp()">Up</DIV>
+                    <DIV id="left-refresh-button" class="button" onclick="fileListController.leftRefresh()">Refresh</DIV>
+                </DIV>
+
+                <DIV class="table-wrapper">
+                    <TABLE class="formatted-table">
+                        <THEAD>
+                        <TR>
+                            <TH>
+                                <INPUT type="checkbox" id="select-all-left-checkbox">
+                            </TH>
+                            <TH>Név</TH>
+                            <TH>Méret</TH>
+                            <TH>Dátum</TH>
+                            <TH>Műveletek</TH>
+                        </TR>
+                        </THEAD>
+
+                        <TBODY id="files-list-left" class="files-list"></TBODY>
+                    </TABLE>
+                </DIV>
+            </DIV>
+
+            <DIV id="files-list-right-container" class="files-container">
+                <DIV id="right-parent-label" class="parent-label"></DIV>
+
+                <DIV class="nav-button-wrapper">
+                    <DIV id="right-up-button" class="button up-button" onclick="fileListController.rightUp()">Up</DIV>
+                    <DIV id="right-refresh-button" class="button" onclick="fileListController.rightRefresh()">Refresh</DIV>
+                </DIV>
+
+                <DIV class="table-wrapper">
+                    <TABLE class="formatted-table">
+                        <THEAD>
+                        <TR>
+                            <TH>
+                                <INPUT type="checkbox" id="select-all-right-checkbox">
+                            </TH>
+                            <TH>Név</TH>
+                            <TH>Méret</TH>
+                            <TH>Dátum</TH>
+                            <TH>Műveletek</TH>
+                        </TR>
+                        </THEAD>
+
+                        <TBODY id="files-list-right" class="files-list"></TBODY>
+                    </TABLE>
+                </DIV>
+            </DIV>
+    </MAIN>
+
+    <FOOTER>
+
+    </FOOTER>
+</DIV>
+</BODY>
+</HTML>
