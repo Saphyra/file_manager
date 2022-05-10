@@ -6,4 +6,5 @@ public class Endpoints {
     public static final String RENAME = "/api/files/rename";
     public static final String DELETE = "/api/files";
     public static final String COPY = "/api/files/copy";
+    public static final String MOVE = "/api/files/move";
 }

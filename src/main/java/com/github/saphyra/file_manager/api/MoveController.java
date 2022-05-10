@@ -1,9 +1,9 @@
 package com.github.saphyra.file_manager.api;
 
-import com.github.saphyra.file_manager.api.model.CopyRequest;
+import com.github.saphyra.file_manager.api.model.MoveRequest;
 import com.github.saphyra.file_manager.common.Endpoints;
 import com.github.saphyra.file_manager.common.ExecutorServiceBean;
-import com.github.saphyra.file_manager.process.CopyProcess;
+import com.github.saphyra.file_manager.process.MoveProcess;
 import com.github.saphyra.file_manager.process.ProcessContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,16 +15,16 @@ import java.io.File;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-@RestController
-@RequiredArgsConstructor
 @Slf4j
-public class CopyController {
+@RequiredArgsConstructor
+@RestController
+public class MoveController {
     private final ExecutorServiceBean executorServiceBean;
     private final ProcessContext processContext;
 
-    @PostMapping(Endpoints.COPY)
-    void copy(@RequestBody CopyRequest request) {
-        log.info("Copying files {}", request);
+    @PostMapping(Endpoints.MOVE)
+    void move(@RequestBody MoveRequest request) {
+        log.info("Moving files {}", request);
 
         if (isBlank(request.getSource())) {
             throw new IllegalArgumentException("Source is blank.");
@@ -52,10 +52,10 @@ public class CopyController {
             throw new IllegalArgumentException("Target does not exist.");
         }
 
-        if(!target.isDirectory()){
+        if (!target.isDirectory()) {
             throw new IllegalArgumentException("Target is not a directory.");
         }
 
-        executorServiceBean.execute(new CopyProcess(source, target, processContext));
+        executorServiceBean.execute(new MoveProcess(source, target, processContext));
     }
 }

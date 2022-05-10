@@ -78,7 +78,8 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
             node.title = file.path;
 
             const selectCell = document.createElement("TD");
-                selectCell.classList.add("centered")
+                selectCell.classList.add("centered");
+
                 const selectInput = document.createElement("INPUT");
                     selectInput.onclick = function(event){
                         event.stopPropagation();
@@ -101,6 +102,8 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
         node.appendChild(dateCell);
 
             const operationsCell = document.createElement("TD");
+                operationsCell.classList.add("centered");
+
                 const copyButton = document.createElement("BUTTON");
                     copyButton.innerText = "Copy";
                     copyButton.onclick = function(event){
@@ -108,6 +111,14 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                         copyFile(file, getOtherContainer(container));
                     }
             operationsCell.appendChild(copyButton);
+
+                const moveButton = document.createElement("BUTTON");
+                    moveButton.innerText = "Move";
+                    moveButton.onclick = function(event){
+                        event.stopPropagation();
+                        moveFile(file, getOtherContainer(container));
+                    }
+            operationsCell.appendChild(moveButton);
 
                 const renameButton = document.createElement("BUTTON");
                     renameButton.innerText = "Rename";
@@ -173,6 +184,28 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                     const request = new Request(Mapping.getEndpoint("COPY"), {source: file.path, target: target});
                         request.processValidResponse = function(){
                             notificationService.showSuccess("Copy started.");
+                        }
+                    dao.sendRequestAsync(request);
+                }
+            )
+    }
+
+    function moveFile(file, container){
+        const target = container.getDirectory();
+
+        const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+            .withTitle("Confirm move")
+            .withDetail("Are you sure you want to move file <SPAN class='red'>" + file.path + "</SPAN> to <SPAN class='red'> " + target +"</SPAN>?")
+            .withConfirmButton("Move")
+            .withDeclineButton("Cancel");
+
+            confirmationService.openDialog(
+                "move-file-confirmation-dialog",
+                confirmationDialogLocalization,
+                function(){
+                    const request = new Request(Mapping.getEndpoint("MOVE"), {source: file.path, target: target});
+                        request.processValidResponse = function(){
+                            notificationService.showSuccess("Move started.");
                         }
                     dao.sendRequestAsync(request);
                 }

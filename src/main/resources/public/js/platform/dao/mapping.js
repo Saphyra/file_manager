@@ -4,6 +4,7 @@ window.Mapping = new function(){
     const endpoints = {
         GET_FILES: new Endpoint("/api/files", HttpMethod.POST),
         COPY: new Endpoint("/api/files/copy", HttpMethod.POST),
+        MOVE: new Endpoint("/api/files/move", HttpMethod.POST),
         DELETE: new Endpoint("/api/files", HttpMethod.DELETE),
         RENAME: new Endpoint("/api/files/rename", HttpMethod.POST),
     }
