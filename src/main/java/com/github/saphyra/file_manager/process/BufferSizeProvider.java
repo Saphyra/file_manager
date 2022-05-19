@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
 @Component
 @Slf4j
 public class BufferSizeProvider {
-    private static final int MAX_BUFFER_SIZE = Integer.MAX_VALUE - 1024 * 1024 * 2;
+    private static final int MAX_BUFFER_SIZE = 512 * 1024 * 1024;
 
     private final Semaphore semaphore;
 

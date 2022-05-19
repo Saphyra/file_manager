@@ -9,6 +9,9 @@ drives:
     - - G
     - - C
       - D
+    - - F
+      - H
+      - I
     - - Z
 
 buffer:
