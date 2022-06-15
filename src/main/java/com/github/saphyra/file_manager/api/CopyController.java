@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -22,9 +23,14 @@ public class CopyController {
     private final ExecutorServiceBean executorServiceBean;
     private final ProcessContext processContext;
 
+    @PostMapping(Endpoints.COPY_ALL)
+    void copyAll(@RequestBody List<CopyRequest> requests) {
+        requests.forEach(this::copy);
+    }
+
     @PostMapping(Endpoints.COPY)
     void copy(@RequestBody CopyRequest request) {
-        log.info("Copying files {}", request);
+        log.info("Copying file {}", request);
 
         if (isBlank(request.getSource())) {
             throw new IllegalArgumentException("Source is blank.");
@@ -52,7 +58,7 @@ public class CopyController {
             throw new IllegalArgumentException("Target does not exist.");
         }
 
-        if(!target.isDirectory()){
+        if (!target.isDirectory()) {
             throw new IllegalArgumentException("Target is not a directory.");
         }
 

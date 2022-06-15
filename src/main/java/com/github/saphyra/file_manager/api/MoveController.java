@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -22,9 +23,14 @@ public class MoveController {
     private final ExecutorServiceBean executorServiceBean;
     private final ProcessContext processContext;
 
+    @PostMapping(Endpoints.MOVE_ALL)
+    void moveAll(@RequestBody List<MoveRequest> requests) {
+        requests.forEach(this::move);
+    }
+
     @PostMapping(Endpoints.MOVE)
     void move(@RequestBody MoveRequest request) {
-        log.info("Moving files {}", request);
+        log.info("Moving file {}", request);
 
         if (isBlank(request.getSource())) {
             throw new IllegalArgumentException("Source is blank.");

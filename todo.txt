@@ -1,4 +1,5 @@
 TODO icons for buttons
+TODO icons for operation with selected buttons
 TODO WebSocket communication
 TODO Update panels automatically
 TODO progress bar

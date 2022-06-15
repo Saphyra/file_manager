@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -20,6 +21,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Slf4j
 public class DeleteController {
     private final ExecutorServiceBean executorServiceBean;
+
+    @DeleteMapping(Endpoints.DELETE_ALL)
+    void delete(@RequestBody List<String> paths) {
+        paths.stream()
+            .map(OneParamRequest::new)
+            .forEach(this::delete);
+    }
 
     @DeleteMapping(Endpoints.DELETE)
     void delete(@RequestBody OneParamRequest<String> request) {

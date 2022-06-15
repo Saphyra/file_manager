@@ -65,6 +65,30 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
         this.rightCreateDirectory = function(){
             RIGHT_CONTAINER.createDirectory();
         }
+
+        this.leftCopySelected = function(){
+            LEFT_CONTAINER.copySelected();
+        }
+
+        this.rightCopySelected = function(){
+            RIGHT_CONTAINER.copySelected();
+        }
+
+        this.leftMoveSelected = function(){
+            LEFT_CONTAINER.moveSelected();
+        }
+
+        this.rightMoveSelected = function(){
+            RIGHT_CONTAINER.moveSelected();
+        }
+
+        this.leftDeleteSelected = function(){
+            LEFT_CONTAINER.deleteSelected();
+        }
+
+        this.rightDeleteSelected = function(){
+            RIGHT_CONTAINER.deleteSelected();
+        }
     }
 
     function sortFiles(a, b){
@@ -91,6 +115,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                 const selectInput = document.createElement("INPUT");
                     selectInput.onclick = function(event){
                         event.stopPropagation();
+                        file.selected = selectInput.checked;
                     }
                     selectInput.type = "checkbox";
                     selectInput.checked = file.selected;
@@ -140,7 +165,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                     deleteButton.innerText = "Delete";
                     deleteButton.onclick = function(event){
                         event.stopPropagation();
-                        deleteFile(file, container);
+                        deleteFile(file);
                     }
             operationsCell.appendChild(deleteButton);
         node.appendChild(operationsCell);
@@ -220,7 +245,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
             )
     }
 
-    function deleteFile(file, container){
+    function deleteFile(file){
          const confirmationDialogLocalization = new ConfirmationDialogLocalization()
             .withTitle("Confirm deletion")
             .withDetail("Are you sure you want to delete file <SPAN class='red'>" + file.path + "</SPAN>?")
@@ -247,6 +272,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
             newNameInput.type = "text";
             newNameInput.placeholder = "New file name"
             newNameInput.value = file.name;
+            newNameInput.style.width = "90%";
 
         const confirmationDialogLocalization = new ConfirmationDialogLocalization()
             .withTitle("Rename")
@@ -264,7 +290,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                         return;
                     }
 
-                    const request = new Request(Mapping.getEndpoint("RENAME"), {file: file.path, newName: newNameInput.value}, null, );
+                    const request = new Request(Mapping.getEndpoint("RENAME"), {file: file.path, newName: newNameInput.value});
                         request.convertResponse = jsonConverter;
                         request.processValidResponse = function(newFile){
                             notificationService.showSuccess("File renamed.");
@@ -371,6 +397,7 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
             const directoryNameInput = document.createElement("INPUT");
                 directoryNameInput.type = "text";
                 directoryNameInput.placeholder = "Directory name"
+                directoryNameInput.style.width = "90%";
 
             const confirmationDialogLocalization = new ConfirmationDialogLocalization()
                 .withTitle("Create directory")
@@ -400,6 +427,93 @@ scriptLoader.loadScript("/js/platform/confirmation_service.js");
                     ()=>{confirmationService.closeDialog(containerId)},
                     new ConfirmationDialogOptions().withCloseAfterChoice(false)
                 )
+        }
+
+        this.copySelected = function(){
+            const target = getOtherContainer(this)
+                .getDirectory();
+
+            const selectedFiles = getSelectedFiles();
+
+            const files = selectedFiles.map(file => {return {source: file.path, target: target}})
+                .toList();
+
+            const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+                .withTitle("Confirm copy")
+                .withDetail("Are you sure you want to copy files <SPAN class='red'>" + selectedFiles.map(file => {return file.name}).join(", ") + "</SPAN> to <SPAN class='red'> " + target + "</SPAN>?")
+                .withConfirmButton("Copy")
+                .withDeclineButton("Cancel");
+
+                confirmationService.openDialog(
+                    "copy-file-confirmation-dialog",
+                    confirmationDialogLocalization,
+                    function(){
+                        const request = new Request(Mapping.getEndpoint("COPY_ALL"), files);
+                            request.processValidResponse = function(){
+                                notificationService.showSuccess("Copy started.");
+                            }
+                        dao.sendRequestAsync(request);
+                    }
+                )
+        }
+
+        this.moveSelected = function(){
+            const target = getOtherContainer(this)
+                .getDirectory();
+
+            const selectedFiles = getSelectedFiles();
+
+            const files = selectedFiles.map(file => {return {source: file.path, target: target}})
+                .toList();
+
+            const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+                .withTitle("Confirm move")
+                .withDetail("Are you sure you want to move files <SPAN class='red'>" + selectedFiles.map(file => {return file.name}).join(", ") + "</SPAN> to <SPAN class='red'> " + target +"</SPAN>?")
+                .withConfirmButton("Move")
+                .withDeclineButton("Cancel");
+
+                confirmationService.openDialog(
+                    "move-file-confirmation-dialog",
+                    confirmationDialogLocalization,
+                    function(){
+                        const request = new Request(Mapping.getEndpoint("MOVE_ALL"), files);
+                            request.processValidResponse = function(){
+                                notificationService.showSuccess("Move started.");
+                            }
+                        dao.sendRequestAsync(request);
+                    }
+                )
+        }
+
+        this.deleteSelected = function(){
+            const selectedFiles = getSelectedFiles();
+
+            const files = selectedFiles.map(file => {return file.path})
+                .toList();
+
+            const confirmationDialogLocalization = new ConfirmationDialogLocalization()
+                .withTitle("Confirm deletion")
+                .withDetail("Are you sure you want to delete file <SPAN class='red'>" + selectedFiles.map(file => {return file.name}).join(", ") + "</SPAN>?")
+                .withConfirmButton("Delete")
+                .withDeclineButton("Cancel");
+
+                confirmationService.openDialog(
+                    "delete-file-confirmation-dialog",
+                    confirmationDialogLocalization,
+                    function(){
+                        const request = new Request(Mapping.getEndpoint("DELETE_ALL"), files);
+                            request.processValidResponse = function(){
+                                notificationService.showSuccess("Deletion started");
+                            }
+                        dao.sendRequestAsync(request);
+                    }
+                )
+        }
+
+        function getSelectedFiles(){
+            return new MapStream(syncEngine.values())
+                .toListStream()
+                .filter(file => {return file.selected});
         }
     }
 })();
